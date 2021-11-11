@@ -37,7 +37,7 @@ clean:
 bin/producer: producer/main.go producer/helloworld_grpc.pb.go producer/helloworld.pb.go
 	go build -o bin/producer chained_function_eventing/producer
 
-TAG_PRODUCER = vhiveease/chained-functions-eventing-producer:latest
+TAG_PRODUCER = 172.16.3.7:5000/chained-functions-eventing-producer:latest
 image-producer: Dockerfile bin/producer
 	docker build --tag ${TAG_PRODUCER} --build-arg target_arg=producer -f Dockerfile ../..
 
@@ -48,7 +48,7 @@ push-producer: image-producer
 bin/consumer: consumer/main.go
 	go build -o bin/consumer chained_function_eventing/consumer
 
-TAG_CONSUMER = vhiveease/chained-functions-eventing-consumer:latest
+TAG_CONSUMER = 172.16.3.7:5000/chained-functions-eventing-consumer:latest
 image-consumer: Dockerfile bin/consumer
 	docker build --tag ${TAG_CONSUMER} --build-arg target_arg=consumer -f Dockerfile ../..
 

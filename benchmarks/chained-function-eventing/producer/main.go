@@ -90,7 +90,7 @@ func main() {
 		log.Fatalf("failed to initialize CE client: %v", err)
 	}
 
-	lis, err := net.Listen("tcp", "0.0.0.0:8080")
+	lis, err := net.Listen("tcp", "0.0.0.0:50051")
 	if err != nil {
 		log.Fatalf("failed to listen: %s", err)
 	}

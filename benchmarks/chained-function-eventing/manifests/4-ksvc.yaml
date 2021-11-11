@@ -31,7 +31,12 @@ spec:
   template:
     spec:
       containers:
-        - image: docker.io/vhiveease/chained-functions-eventing-producer:latest
+        - image: 172.16.3.7:5000/vhiveease/chained-functions-eventing-producer:latest
+          env:
+            - name: GUEST_PORT
+              value: "50051"
+            - name: GUEST_IMAGE
+              value: "172.16.3.7:5000/vhiveease/chained-functions-eventing-producer:latest"
           imagePullPolicy: Always
           ports:
             # For `h2c`, see https://knative.tips/networking/http2/
@@ -51,5 +56,10 @@ spec:
   template:
     spec:
       containers:
-        - image: docker.io/vhiveease/chained-functions-eventing-consumer:latest
+        - image: 172.16.3.7:5000/vhiveease/chained-functions-eventing-consumer:latest
+          env:
+            - name: GUEST_PORT
+              value: "50051"
+            - name: GUEST_IMAGE
+              value: "172.16.3.7:5000/vhiveease/chained-functions-eventing-consumer:latest"
           imagePullPolicy: Always

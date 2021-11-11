@@ -35,7 +35,8 @@ spec:
     spec:
       containerConcurrency: 1
       containers:
-        - image: docker.io/vhiveease/video-analytics-recog:latest
+        - image: 172.16.3.7:5000/vhiveease/video-analytics-recog:latest
+          args: ["-addr", "recog.default.svc.cluster.local","-sp","50051"]
           imagePullPolicy: Always
           env:
             - name: TRANSFER_TYPE
@@ -47,4 +48,4 @@ spec:
           ports:
             # For `h2c`, see https://knative.tips/networking/http2/
             - name: h2c
-              containerPort: 80
+              containerPort: 50051

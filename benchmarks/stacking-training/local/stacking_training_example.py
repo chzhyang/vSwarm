@@ -113,7 +113,7 @@ def handler_reducer(event, context):
     for training_response in event:
         models.append(fake_read_from_s3(training_response['model_key']))
         predictions.append(fake_read_from_s3(training_response['pred_key']))
-    meta_features = np.transpose(np.array(predictions))
+    meta_features = np.transpose(np.array(predictions)) # Reverse or permute the axes of an array
 
     # Write to S3
     meta_features_key = 'meta_features_key'

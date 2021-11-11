@@ -2,7 +2,7 @@
 
 set -e
 
-BASEDIR=$(dirname "${0}")
+BASEDIR=$( )
 
 echo "Namespace: applying..."
 kubectl apply --filename "${BASEDIR}/0-namespace.yaml"
