@@ -37,9 +37,13 @@ spec:
       containers:
         - image: 172.16.3.7:5000/vhiveease/video-analytics-streaming:latest
           imagePullPolicy: Always
-          args: ["-addr", "decoder.default.svc.cluster.local"]
+          #args: ["-addr", "decoder.default.svc.cluster.local:50051"]
           args: ["-addr", "decoder.default.svc.cluster.local","-sp","50051"]
           env:
+            - name: GUEST_PORT
+              value: "50051"
+            - name: GUEST_IMAGE
+              value: "172.16.3.7:5000/vhiveease/video-analytics-streaming:latest"
             - name: TRANSFER_TYPE
               value: "INLINE"
             - name: ENABLE_TRACING

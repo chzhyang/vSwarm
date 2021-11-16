@@ -41,7 +41,7 @@ spec:
           ports:
             # For `h2c`, see https://knative.tips/networking/http2/
             - name: h2c
-              containerPort: 8080
+              containerPort: 50051
 
 ---
 

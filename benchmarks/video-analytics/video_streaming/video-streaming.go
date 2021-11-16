@@ -37,8 +37,8 @@ import (
 
 	pb_video "tests/video_analytics/proto"
 
-	sdk "github.com/ease-lab/vhive-xdt/sdk/golang"
-	"github.com/ease-lab/vhive-xdt/utils"
+	// sdk "github.com/ease-lab/vhive-xdt/sdk/golang"
+	// "github.com/ease-lab/vhive-xdt/utils"
 	pb_helloworld "github.com/ease-lab/vhive/examples/protobuf/helloworld"
 
 	storage "github.com/ease-lab/vhive-benchmarking/utils/storage/go"
@@ -57,7 +57,7 @@ const (
 	AWS_S3_BUCKET = "vhive-video-bench"
 	TOKEN         = ""
 	INLINE        = "INLINE"
-	XDT           = "XDT"
+	// XDT           = "XDT"
 	S3            = "S3"
 )
 
@@ -65,8 +65,8 @@ type server struct {
 	decoderAddr  string
 	decoderPort  int
 	transferType string
-	config       utils.Config
-	XDTclient    sdk.XDTclient
+	// config       utils.Config
+	// XDTclient    sdk.XDTclient
 	pb_helloworld.UnimplementedGreeterServer
 }
 
@@ -113,17 +113,7 @@ func (s *server) SayHello(ctx context.Context, req *pb_helloworld.HelloRequest) 
 
 	var reply *pb_video.DecodeReply
 	var response string
-	if s.transferType == XDT {
-		payloadToSend := utils.Payload{
-			FunctionName: "HelloXDT",
-			Data:         videoFragment,
-		}
-		if message, _, err := s.XDTclient.Invoke(ctx, addr, payloadToSend); err != nil {
-			log.Fatalf("SQP_to_dQP_data_transfer failed %v", err)
-		} else {
-			response = string(message)
-		}
-	} else if s.transferType == S3 || s.transferType == INLINE {
+	if s.transferType == S3 || s.transferType == INLINE {
 		var conn *grpc.ClientConn
 		if tracing.IsTracingEnabled() {
 			conn, err = tracing.DialGRPCWithUnaryInterceptor(addr, grpc.WithBlock(), grpc.WithInsecure())
@@ -158,10 +148,10 @@ func (s *server) SayHello(ctx context.Context, req *pb_helloworld.HelloRequest) 
 
 func main() {
 	debug := flag.Bool("d", false, "Debug level in logs")
-	dockerCompose := flag.Bool("dockerCompose", false, "Execution env")
+	// dockerCompose := flag.Bool("dockerCompose", false, "Execution env")
 	decoderAddr := flag.String("addr", "decoder.default.svc.cluster.local", "Decoder address")
-	decoderPort := flag.Int("p", 80, "Decoder port")
-	servePort := flag.Int("sp", 80, "Port listened to by this streamer")
+	decoderPort := flag.Int("p", 50051, "Decoder port")
+	servePort := flag.Int("sp", 50051, "Port listened to by this streamer")
 	videoFile = flag.String("video", "reference/video.mp4", "The file location of the video")
 	zipkin := flag.String("zipkin", "http://zipkin.istio-system.svc.cluster.local:9411/api/v2/spans", "zipkin url")
 	flag.Parse()
@@ -215,22 +205,23 @@ func main() {
 
 	if server.transferType == S3 {
 		storage.InitStorage("S3", "vhive-video-bench")
-	} else if server.transferType == XDT {
-		log.Infof("[streaming] TransferType = %s", server.transferType)
-		config := utils.ReadConfig()
-		log.Info(config)
-		if !*dockerCompose {
-			config.SQPServerHostname = fetchSelfIP()
-		}
-		xdtClient, err := sdk.NewXDTclient(config)
-		if err != nil {
-			log.Fatalf("InitXDT failed %v", err)
-		}
-
-		server.config = config
-		server.XDTclient = *xdtClient
-		log.Infof("[streaming] XDT client created")
 	}
+	// else if server.transferType == XDT {
+	// 	log.Infof("[streaming] TransferType = %s", server.transferType)
+	// 	config := utils.ReadConfig()
+	// 	log.Info(config)
+	// 	if !*dockerCompose {
+	// 		config.SQPServerHostname = fetchSelfIP()
+	// 	}
+	// 	xdtClient, err := sdk.NewXDTclient(config)
+	// 	if err != nil {
+	// 		log.Fatalf("InitXDT failed %v", err)
+	// 	}
+
+	// 	server.config = config
+	// 	server.XDTclient = *xdtClient
+	// 	log.Infof("[streaming] XDT client created")
+	// }
 	pb_helloworld.RegisterGreeterServer(grpcServer, &server)
 
 	if err := grpcServer.Serve(lis); err != nil {

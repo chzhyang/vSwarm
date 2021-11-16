@@ -32,9 +32,9 @@ import tracing
 import storage
 import videoservice_pb2_grpc
 import videoservice_pb2
-import destination as XDTdst
-import source as XDTsrc
-import utils as XDTutil
+# import destination as XDTdst
+# import source as XDTsrc
+# import utils as XDTutil
 
 import cv2
 import grpc
@@ -49,8 +49,8 @@ from concurrent import futures
 # USE ENV VAR "DecoderFrames" to set the number of frames to be sent
 parser = argparse.ArgumentParser()
 parser.add_argument("-dockerCompose", "--dockerCompose", dest="dockerCompose", default=False, help="Env docker compose")
-parser.add_argument("-addr", "--addr", dest="addr", default="recog.default.svc.cluster.local:80", help="recog address")
-parser.add_argument("-sp", "--sp", dest="sp", default="80", help="serve port")
+parser.add_argument("-addr", "--addr", dest="addr", default="recog.default.svc.cluster.local:50051", help="recog address")
+parser.add_argument("-sp", "--sp", dest="sp", default="50051", help="serve port")
 parser.add_argument("-frames", "--frames", dest="frames", default="1", help="Default number of frames- overwritten by environment variable")
 parser.add_argument("-zipkin", "--zipkin", dest="url", default="http://zipkin.istio-system.svc.cluster.local:9411/api/v2/spans", help="Zipkin endpoint url")
 
@@ -63,7 +63,7 @@ if tracing.IsTracingEnabled():
 
 INLINE = "INLINE"
 S3 = "S3"
-XDT = "XDT"
+# XDT = "XDT"
 
 def decode(bytes):
     temp = tempfile.NamedTemporaryFile(suffix=".mp4")
@@ -98,11 +98,11 @@ class VideoDecoderServicer(videoservice_pb2_grpc.VideoDecoderServicer):
 
         self.frameCount = 0
         self.transferType = transferType
-        if transferType == XDT:
-            if XDTconfig is None:
-                log.fatal("Empty XDT config")
-            self.XDTconfig = XDTconfig
-            self.XDTclient = XDTsrc.XDTclient(config=XDTconfig)
+        # if transferType == XDT:
+        #     if XDTconfig is None:
+        #         log.fatal("Empty XDT config")
+        #     self.XDTconfig = XDTconfig
+        #     self.XDTclient = XDTsrc.XDTclient(config=XDTconfig)
 
     def Decode(self, request, context):
         log.info("Decoder recieved a request")
@@ -155,14 +155,14 @@ class VideoDecoderServicer(videoservice_pb2_grpc.VideoDecoderServicer):
         elif self.transferType == INLINE:
             response = stub.Recognise(videoservice_pb2.RecogniseRequest(frame=frame))
             result = response.classification
-        elif self.transferType == XDT:
-            xdtPayload = XDTutil.Payload(FunctionName="HelloXDT", Data=frame)
-            if not args.dockerCompose:
-                log.info("replacing SQP hostname")
-                self.XDTconfig["SQPServerHostname"] = get_self_ip()
-            response_bytes, ok = self.XDTclient.Invoke(URL=args.addr, xdtPayload=xdtPayload)
-            # convert response bytes to string
-            result = response_bytes.decode()
+        # elif self.transferType == XDT:
+        #     xdtPayload = XDTutil.Payload(FunctionName="HelloXDT", Data=frame)
+        #     if not args.dockerCompose:
+        #         log.info("replacing SQP hostname")
+        #         self.XDTconfig["SQPServerHostname"] = get_self_ip()
+        #     response_bytes, ok = self.XDTclient.Invoke(URL=args.addr, xdtPayload=xdtPayload)
+        #     # convert response bytes to string
+        #     result = response_bytes.decode()
         
         return result
 
@@ -179,17 +179,17 @@ def serve():
         server.add_insecure_port('[::]:'+args.sp)
         server.start()
         server.wait_for_termination()
-    elif transferType == XDT:
-        XDTconfig = XDTutil.loadConfig()
-        log.info("[decode] transfering via XDT")
-        log.info(XDTconfig)
+    # elif transferType == XDT:
+    #     XDTconfig = XDTutil.loadConfig()
+    #     log.info("[decode] transfering via XDT")
+    #     log.info(XDTconfig)
 
-        def handler(videoBytes):
-            decoderService = VideoDecoderServicer(transferType=transferType, XDTconfig=XDTconfig)
-            results = decoderService.processFrames(videoBytes)
-            return results.encode(), True
+    #     def handler(videoBytes):
+    #         decoderService = VideoDecoderServicer(transferType=transferType, XDTconfig=XDTconfig)
+    #         results = decoderService.processFrames(videoBytes)
+    #         return results.encode(), True
 
-        XDTdst.StartDstServer(XDTconfig, handler)
+    #     XDTdst.StartDstServer(XDTconfig, handler)
     else:
         log.fatal("Invalid Transfer type")
 

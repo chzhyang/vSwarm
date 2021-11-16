@@ -37,8 +37,8 @@ import tracing
 import storage
 import videoservice_pb2_grpc
 import videoservice_pb2
-import destination as XDTdst
-import utils as XDTutil
+# import destination as XDTdst
+# import utils as XDTutil
 
 import io
 import grpc
@@ -50,14 +50,14 @@ from concurrent import futures
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-sp", "--sp", dest = "sp", default = "80", help="serve port")
+parser.add_argument("-sp", "--sp", dest = "sp", default = "50051", help="serve port")
 parser.add_argument("-zipkin", "--zipkin", dest = "url", default = "http://zipkin.istio-system.svc.cluster.local:9411/api/v2/spans", help="Zipkin endpoint url")
 
 args = parser.parse_args()
 
 INLINE = "INLINE"
 S3 = "S3"
-XDT = "XDT"
+# XDT = "XDT"
 
 if tracing.IsTracingEnabled():
     tracing.initTracer("recog", url=args.url)
@@ -147,16 +147,16 @@ def serve():
         server.add_insecure_port('[::]:'+args.sp)
         server.start()
         server.wait_for_termination()
-    elif transferType == XDT:
-        config = XDTutil.loadConfig()
-        log.info("[recog] transfering via XDT")
-        log.info(config)
+    # elif transferType == XDT:
+    #     config = XDTutil.loadConfig()
+    #     log.info("[recog] transfering via XDT")
+    #     log.info(config)
 
-        def handler(imageBytes):
-            classification = infer(preprocessImage(imageBytes))
-            return classification.encode(), True
+    #     def handler(imageBytes):
+    #         classification = infer(preprocessImage(imageBytes))
+    #         return classification.encode(), True
 
-        XDTdst.StartDstServer(config, handler)
+    #     XDTdst.StartDstServer(config, handler)
 
 
 if __name__ == '__main__':

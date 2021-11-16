@@ -41,7 +41,7 @@ import (
 
 const (
 	TOKEN       = ""
-	XDT         = "XDT"
+	// XDT         = "XDT"
 	S3          = "S3"
 	ELASTICACHE = "ELASTICACHE"
 )
